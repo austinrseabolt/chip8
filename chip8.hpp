@@ -1,0 +1,177 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+
+
+class chip8{
+    public:
+
+    unsigned short opcode;
+    unsigned char memory[4096];
+    unsigned char V[16];
+    unsigned short I;
+    unsigned short pc;
+    unsigned short stack[16];
+    unsigned short sp;
+    unsigned char key[16];
+    unsigned char gfx[64 * 32];
+    unsigned char delay_timer;
+
+    unsigned char chip8_fontset[80] = { 
+        0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+        0x20, 0x60, 0x20, 0x20, 0x70, // 1
+        0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+        0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+        0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+        0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+        0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+        0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+        0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+        0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+        0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+        0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+        0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+        0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+        0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+        0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+    };
+
+
+
+    void initialize(){
+        pc = 0x200; // Program counter starts at 0x200
+        opcode = 0; // Reset current opcdoe 
+        I = 0; // Reset Index Register
+        sp = 0; // Reset Stack Pointer
+
+        //clear memory
+        for (int i = 0; i < sizeof(memory); ++i){
+            memory[i] = 0;
+        }
+        //clear display
+
+        //clear stack
+        for (int i = 0; i < sizeof(stack); ++i){
+            stack[i] = 0;
+        }
+        //clear registers 
+
+        //load font set
+        for (int i = 0; i < 80; ++i){
+            memory[i] = chip8_fontset[i];
+        }
+    }
+
+
+
+    void memdump(){
+        
+        for (int i = 0; i < sizeof(memory); ++i){
+            std::cout << "Value at address " << i << " is: " << +memory[i] << std::endl;
+        }
+        
+
+    }
+
+    void vdump(){
+        for (int i = 0; i < sizeof(V); ++i){
+            std::cout << "Value at V" << i << " is: " << +V[i] << std::endl;
+        }
+    }
+
+    void gfxdump(){
+
+    }
+
+    void emulateCycle(){
+        /* fetch opcode, each opcode is 2 bytes and each memory array index is 1 byte,
+        shift opcode one bit to the left and use bitwise or to merge */
+        opcode = memory[pc] << 8 | memory[pc + 1];
+
+        //decode opcode
+        /* since value is only 12 bits at the end of opcode,
+        use bitwise AND with 0x0FFF (0000111111111111) to set first four bits to zero */
+
+        switch(opcode & 0xf000) //bitwise and makes all 12 value bits equal to zero
+        {
+            case 0x2000:
+                stack[sp] = pc;
+                ++sp;
+                pc = opcode & 0x0FFF;
+            break;
+           
+
+            
+            case 0x5000: //5XY0: Skips next instruction if VX equals VY.
+                if (V[(opcode & 0x0F00)] == V[(opcode & 0x00F0)]){
+                    pc += 4;
+                }
+                else {
+                    pc += 2;
+                }
+            break;
+            
+            case 0x6000: // 6XNN: VX = NN
+                V[(opcode & 0x0F00) >> 8] = opcode & 0x00FF;
+                pc += 2;
+            break;
+
+            case 0xA000: // ANNN: sets I to address NNN
+                I = opcode & 0x0FFF;
+                pc += 2;
+            break;
+
+            case 0xD000:		   
+            {
+            unsigned short x = V[(opcode & 0x0F00) >> 8];
+            unsigned short y = V[(opcode & 0x00F0) >> 4];
+            unsigned short height = opcode & 0x000F;
+            unsigned short pixel;
+            
+            V[0xF] = 0;
+            for (int yline = 0; yline < height; yline++)
+            {
+                pixel = memory[I + yline];
+                for(int xline = 0; xline < 8; xline++)
+                {
+                if((pixel & (0x80 >> xline)) != 0)
+                {
+                    if(gfx[(x + xline + ((y + yline) * 64))] == 1)
+                    V[0xF] = 1;                                 
+                    gfx[x + xline + ((y + yline) * 64)] ^= 1;
+                }
+                }
+            }
+            //drawFlag = true;
+            pc += 2;
+            }
+            break;
+           
+           
+            case 0xF000:
+                std::cout << "OPCODE NOT IMPLEMENTED!!!" << std::endl;
+                pc += 2;
+            break;
+            
+            default:
+                //memdump();
+                vdump();
+                std::cout << "Program Counter: " << pc - 512 << std::endl;
+                std::cout << "unknown opcode: "  << std::hex << opcode << std::endl;
+                exit(1);
+        }
+        
+    }
+
+    void loadRom(){
+        int buffersize = 4096 - 512;
+        unsigned char buffer[buffersize];
+        FILE * pFile;
+        pFile = fopen("pong.rom", "rb");
+        int bytes_read = fread(buffer, sizeof(unsigned char), buffersize, pFile);
+        for (int i = 0; i < buffersize; ++i){
+            memory[i + 512] = buffer[i];
+        }
+        fclose(pFile);
+    }
+};
