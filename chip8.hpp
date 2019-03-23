@@ -80,7 +80,12 @@ class chip8{
     }
 
     void gfxdump(){
-
+        for (int x = 0; x < sizeof(gfx); ++x){
+            std::cout << +gfx[x];
+            if ((x) / 64 == 1){
+                std::cout << std::endl;
+            }
+        }
     }
 
     void emulateCycle(){
@@ -155,7 +160,9 @@ class chip8{
             
             default:
                 //memdump();
+                gfxdump();
                 vdump();
+
                 std::cout << "Program Counter: " << pc - 512 << std::endl;
                 std::cout << "unknown opcode: "  << std::hex << opcode << std::endl;
                 exit(1);
