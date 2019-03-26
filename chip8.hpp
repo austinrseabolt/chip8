@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-
+#include <stdlib.h>
 
 class chip8{
     public:
@@ -55,7 +55,10 @@ class chip8{
             stack[i] = 0;
         }
         //clear registers 
-
+        for (int i = 0; i < sizeof(V); ++i){
+            V[i] = 0;
+            
+        }
         //load font set
         for (int i = 0; i < 80; ++i){
             memory[i] = chip8_fontset[i];
@@ -90,7 +93,7 @@ class chip8{
 
     void emulateCycle(){
         /* fetch opcode, each opcode is 2 bytes and each memory array index is 1 byte,
-        shift opcode one bit to the left and use bitwise or to merge */
+        shift opcode one byte to the left and use bitwise OR to merge */
         opcode = memory[pc] << 8 | memory[pc + 1];
 
         //decode opcode
@@ -119,6 +122,20 @@ class chip8{
             case 0x6000: // 6XNN: VX = NN
                 V[(opcode & 0x0F00) >> 8] = opcode & 0x00FF;
                 pc += 2;
+            break;
+            
+            case 0x7000:  //7XNN: Adds NN to VX (Carry flag is not changed.)
+                {
+                    int x = (opcode & 0x0F00) >> 8;
+                    std::cout << "Last value of V " << std::dec << x << " = " << std::hex << +V[x] << std::endl;
+                    V[x] = V[x] + (opcode & 0x00FF);
+                    std::cout << "Opcode: " << std::hex << opcode << std::endl;
+                    std::cout << "V " << std::dec << x << " = " << std::hex << +V[x] <<  std::endl;
+                    std::cout << "Decimal: " << std::dec << +V[x] << std::endl;
+                    exit(1);
+                    
+
+                }
             break;
 
             case 0xA000: // ANNN: sets I to address NNN
