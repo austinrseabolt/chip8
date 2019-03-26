@@ -70,7 +70,7 @@ class chip8{
     void memdump(){
         
         for (int i = 0; i < sizeof(memory); ++i){
-            std::cout << "Value at address " << i << " is: " << +memory[i] << std::endl;
+            std::cout << "Value at address " << i << " is: " << std::hex << +memory[i] << std::endl;
         }
         
 
@@ -78,7 +78,7 @@ class chip8{
 
     void vdump(){
         for (int i = 0; i < sizeof(V); ++i){
-            std::cout << "Value at V" << i << " is: " << +V[i] << std::endl;
+            std::cout << "Value at V" << std::dec << i << " is: " << +V[i] << std::endl;
         }
     }
 
@@ -95,11 +95,11 @@ class chip8{
         /* fetch opcode, each opcode is 2 bytes and each memory array index is 1 byte,
         shift opcode one byte to the left and use bitwise OR to merge */
         opcode = memory[pc] << 8 | memory[pc + 1];
-
+        
         //decode opcode
         /* since value is only 12 bits at the end of opcode,
         use bitwise AND with 0x0FFF (0000111111111111) to set first four bits to zero */
-
+        
         switch(opcode & 0xf000) //bitwise and makes all 12 value bits equal to zero
         {
             case 0x2000:
@@ -127,14 +127,13 @@ class chip8{
             case 0x7000:  //7XNN: Adds NN to VX (Carry flag is not changed.)
                 {
                     int x = (opcode & 0x0F00) >> 8;
-                    std::cout << "Last value of V " << std::dec << x << " = " << std::hex << +V[x] << std::endl;
-                    V[x] = V[x] + (opcode & 0x00FF);
-                    std::cout << "Opcode: " << std::hex << opcode << std::endl;
-                    std::cout << "V " << std::dec << x << " = " << std::hex << +V[x] <<  std::endl;
-                    std::cout << "Decimal: " << std::dec << +V[x] << std::endl;
-                    exit(1);
                     
-
+                    V[x] = V[x] + (opcode & 0x00FF);
+                    
+                  
+                    
+                    pc += 2;
+                    
                 }
             break;
 
@@ -176,15 +175,17 @@ class chip8{
             break;
             
             default:
-                //memdump();
+                memdump();
                 gfxdump();
                 vdump();
 
-                std::cout << "Program Counter: " << pc - 512 << std::endl;
+                std::cout << "Program Counter: " << std::dec << pc - 512 << std::endl;
                 std::cout << "unknown opcode: "  << std::hex << opcode << std::endl;
+                std::cout << "Memory Location of Opcode: " << std::hex << pc << std::endl;
                 exit(1);
         }
-        
+
+       
     }
 
     void loadRom(){
