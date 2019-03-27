@@ -177,13 +177,14 @@ class chip8{
            
            
             case 0xF000:
-                std::cout << "OPCODE NOT IMPLEMENTED!!!" << std::endl;
+                std::cout << "OPCODE 0xF000 NOT IMPLEMENTED!!!" << std::endl;
                 pc += 2;
             break;
             
             default:
                 memdump();
                 gfxdump();
+                std::cout << std::endl;
                 vdump();
 
                 std::cout << "Program Counter: " << std::dec << pc - 512 << std::endl;
@@ -195,11 +196,11 @@ class chip8{
        
     }
 
-    void loadRom(){
+    void loadRom(char* rompath){
         int buffersize = 4096 - 512;
         unsigned char buffer[buffersize];
         FILE * pFile;
-        pFile = fopen("pong.rom", "rb");
+        pFile = fopen(rompath, "rb");
         int bytes_read = fread(buffer, sizeof(unsigned char), buffersize, pFile);
         for (int i = 0; i < buffersize; ++i){
             memory[i + 512] = buffer[i];
