@@ -84,8 +84,15 @@ class chip8{
 
     void gfxdump(){
         for (int x = 0; x < sizeof(gfx); ++x){
-            std::cout << +gfx[x];
-            if ((x) / 64 == 1){
+            unsigned char currentchar;
+            currentchar = gfx[x];
+            if (currentchar == 0){
+                std::cout << " ";
+            }
+            else {
+                std::cout << "█";
+            }
+            if ((x) % 64 == 0){
                 std::cout << std::endl;
             }
         }
