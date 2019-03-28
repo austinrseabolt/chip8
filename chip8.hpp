@@ -118,8 +118,26 @@ class chip8{
                 ++sp;
                 pc = opcode & 0x0FFF;
             break;
-           
-            case 
+            
+            case 0x3000: //3XNN: if Vx == NN skip next instruction.
+                if (V[(opcode & 0x0F00)] == (opcode & 0x00FF)){
+                    pc += 4;
+                }
+                else {
+                    pc +=2;
+                }
+            break;
+
+
+            case 0x4000:  //4xNN: If Vx != NN skip next instruction.
+                if (V[(opcode & 0x0F00)] != (opcode & 0x00FF)){
+                    pc += 4;
+                }
+                else {
+                    pc += 2;
+                }
+
+            break;
             
             case 0x5000: //5XY0: Skips next instruction if VX equals VY.
                 if (V[(opcode & 0x0F00)] == V[(opcode & 0x00F0)]){
@@ -148,9 +166,25 @@ class chip8{
                 }
             break;
 
+            case 0x8000: 
+
+            break;
+
+            case 0x9000:
+
+            break;
+
             case 0xA000: // ANNN: sets I to address NNN
                 I = opcode & 0x0FFF;
                 pc += 2;
+            break;
+
+            case 0xB000:
+
+            break;
+
+            case 0xC000:
+
             break;
 
             case 0xD000:		   
