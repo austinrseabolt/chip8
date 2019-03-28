@@ -109,13 +109,17 @@ class chip8{
         std::cout << "OPCODE: " << std::hex << opcode << " AT ADDRESS " << pc << std::endl;
         switch(opcode & 0xf000) //bitwise and makes all 12 value bits equal to zero
         {
+            case 0x1000: //1NNN: jump to address NNN
+                pc = (opcode & 0x0FFF);
+            break;
+            
             case 0x2000:
                 stack[sp] = pc;
                 ++sp;
                 pc = opcode & 0x0FFF;
             break;
            
-
+            case 
             
             case 0x5000: //5XY0: Skips next instruction if VX equals VY.
                 if (V[(opcode & 0x0F00)] == V[(opcode & 0x00F0)]){
