@@ -110,7 +110,7 @@ class chip8{
         //decode opcode
         /* since value is only 12 bits at the end of opcode,
         use bitwise AND with 0x0FFF (0000111111111111) to set first four bits to zero */
-        std::cout << "OPCODE: " << std::hex << opcode << " AT ADDRESS " << pc << std::endl;
+        std::cout << std::endl << "OPCODE: " << std::hex << opcode << " AT ADDRESS " << pc << std::endl;
         switch(opcode & 0xf000) //bitwise and makes all 12 value bits equal to zero
         {
             //check for opcodes 0x00EE and 0x00E0
