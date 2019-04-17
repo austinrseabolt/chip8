@@ -65,7 +65,11 @@ class chip8{
         }
     }
 
-
+    void clearscreen(){
+        for(int i = 0; i < sizeof(gfx); ++i){
+            gfx[i] = 0;
+        }
+    }
 
     void memdump(){
         
@@ -109,6 +113,25 @@ class chip8{
         std::cout << "OPCODE: " << std::hex << opcode << " AT ADDRESS " << pc << std::endl;
         switch(opcode & 0xf000) //bitwise and makes all 12 value bits equal to zero
         {
+            //check for opcodes 0x00EE and 0x00E0
+            case 0x0000:
+                switch(opcode & 0x000F)
+                    {
+                        case 0x0000: //0x00E0, Clears screen
+                            clearscreen();
+                            pc += 2;
+                            //drawflag = true 
+                        break;
+
+                        case 0x000E: // RET return from subroutine
+                            --sp;
+                            pc = stack[sp];
+                            pc += 2;
+
+                        break;
+                    }
+            break;
+            
             case 0x1000: //1NNN: jump to address NNN
                 pc = (opcode & 0x0FFF);
             break;
@@ -213,7 +236,9 @@ class chip8{
             }
             break;
            
-           
+            
+            
+            
             case 0xF000:
                 std::cout << "OPCODE 0xF000 NOT IMPLEMENTED!!!" << std::endl;
                 pc += 2;
