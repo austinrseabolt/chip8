@@ -190,7 +190,29 @@ class chip8{
             break;
 
             case 0x8000: 
+                switch(opcode & 0x000F){
+                    case 0x0000: //8XY0, Sets Vx = Vy
+                    V[(opcode & 0x0F00)] = V[(opcode & 0x00F0)];
+                    pc += 2;
+                    break;
 
+                    case 0x0001: //8XY1 sets VX to (Vx OR Vy), bitwise OR
+                        V[(opcode & 0x0F00)] = (V[(opcode & 0x0F00)]) | (V[(opcode & 0x00F0)]);
+                        pc += 2;
+                    break;
+
+                    case 0x0002:
+
+                    break;
+
+                    case 0x0003:
+
+                    break;
+
+                    case 0x0004:
+                        
+                    break;
+                }
             break;
 
             case 0x9000:
