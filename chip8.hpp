@@ -163,7 +163,7 @@ class chip8{
             break;
             
             case 0x5000: //5XY0: Skips next instruction if VX equals VY.
-                if (V[(opcode & 0x0F00)] == V[(opcode & 0x00F0)]){
+                if (V[(opcode & 0x0F00) >> 8] == V[(opcode & 0x00F0) >> 4]){
                     pc += 4;
                 }
                 else {
@@ -192,21 +192,23 @@ class chip8{
             case 0x8000: 
                 switch(opcode & 0x000F){
                     case 0x0000: //8XY0, Sets Vx = Vy
-                    V[(opcode & 0x0F00)] = V[(opcode & 0x00F0)];
+                    V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4];
                     pc += 2;
                     break;
 
                     case 0x0001: //8XY1 sets VX to (Vx OR Vy), bitwise OR
-                        V[(opcode & 0x0F00)] = (V[(opcode & 0x0F00)]) | (V[(opcode & 0x00F0)]);
+                        V[(opcode & 0x0F00)] = (V[(opcode & 0x0F00) >> 8]) | (V[(opcode & 0x00F0) >> 4]);
                         pc += 2;
                     break;
 
-                    case 0x0002:
-
+                    case 0x0002: //8XY2, Vx = (Vx & Vy)
+                        V[(opcode & 0x0F00 >> 8)] = V[(opcode & 0x0F00)] & V[(opcode & 0x00F0) >> 4];
+                        pc += 2;
                     break;
 
-                    case 0x0003:
-
+                    case 0x0003: // 8XY3 Sets VX to VX xor VY
+                        V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8]) ^ (V[(opcode & 0x00F0) >> 4]);
+                        pc += 2;
                     break;
 
                     case 0x0004:
@@ -215,7 +217,13 @@ class chip8{
                 }
             break;
 
-            case 0x9000:
+            case 0x9000: //9XY0, Skips next instruction if Vx != Vy
+                if (V[(opcode & 0x0F00) >> 8] != V[(opcode & 0x00F0) >> 4]){
+                    pc += 4;
+                }
+                else{
+                    pc += 2;
+                }
 
             break;
 
@@ -262,7 +270,17 @@ class chip8{
             
             
             case 0xF000:
-                std::cout << "OPCODE 0xF000 NOT IMPLEMENTED!!!" << std::endl;
+                switch(opcode & 0x00FF){
+                    case 0x0007:
+                        //V[(opcode & 0x0F00)] = get_delay();
+                    break;
+
+                    case 0x001E: //FX1E adds VX to I
+                    I += V[((opcode & 0x0F00) >> 8)];
+
+                    break;
+
+                }
                 pc += 2;
             break;
             
