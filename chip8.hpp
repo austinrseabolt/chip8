@@ -38,7 +38,8 @@ class chip8{
 
 
 
-    void initialize(){
+    void initialize()
+    {
         pc = 0x200; // Program counter starts at 0x200
         opcode = 0; // Reset current opcdoe 
         I = 0; // Reset Index Register
@@ -65,13 +66,15 @@ class chip8{
         }
     }
 
-    void clearscreen(){
+    void clearscreen()
+    {
         for(int i = 0; i < sizeof(gfx); ++i){
             gfx[i] = 0;
         }
     }
 
-    void memdump(){
+    void memdump()
+    {
         
         for (int i = 0; i < sizeof(memory); ++i){
             std::cout << "Value at address " << i << " is: " << std::hex << +memory[i] << std::endl;
@@ -80,13 +83,15 @@ class chip8{
 
     }
 
-    void vdump(){
+    void vdump()
+    {
         for (int i = 0; i < sizeof(V); ++i){
             std::cout << "Value at V" << std::dec << i << " is: " << +V[i] << std::endl;
         }
     }
 
-    void gfxdump(){
+    void gfxdump()
+    {
         for (int x = 0; x < sizeof(gfx); ++x){
             unsigned char currentchar;
             currentchar = gfx[x];
@@ -102,6 +107,8 @@ class chip8{
         }
     }
 
+
+
     void emulateCycle(){
         /* fetch opcode, each opcode is 2 bytes and each memory array index is 1 byte,
         shift opcode one byte to the left and use bitwise OR to merge */
@@ -110,7 +117,7 @@ class chip8{
         //decode opcode
         /* since value is only 12 bits at the end of opcode,
         use bitwise AND with 0x0FFF (0000111111111111) to set first four bits to zero */
-        std::cout << std::endl << "OPCODE: " << std::hex << opcode << " AT ADDRESS " << pc << std::endl;
+        //std::cout << std::endl << "OPCODE: " << std::hex << opcode << " AT ADDRESS " << pc << std::endl;
         switch(opcode & 0xf000) //bitwise and makes all 12 value bits equal to zero
         {
             //check for opcodes 0x00EE and 0x00E0
