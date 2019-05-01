@@ -113,11 +113,14 @@ class chip8{
         /* fetch opcode, each opcode is 2 bytes and each memory array index is 1 byte,
         shift opcode one byte to the left and use bitwise OR to merge */
         opcode = memory[pc] << 8 | memory[pc + 1];
-        
+        int nextpc = pc + 2;
+        unsigned short nextopcode = memory[nextpc] << 8 | memory[nextpc + 1];
+
         //decode opcode
         /* since value is only 12 bits at the end of opcode,
         use bitwise AND with 0x0FFF (0000111111111111) to set first four bits to zero */
-        //std::cout << std::endl << "OPCODE: " << std::hex << opcode << " AT ADDRESS " << pc << std::endl;
+        std::cout << std::endl << "OPCODE: " << std::hex << opcode << " AT ADDRESS " << pc << std::endl;
+        std::cout << std::endl << "Next Opcode in Memory: " << nextopcode << std::endl;
         switch(opcode & 0xf000) //bitwise and makes all 12 value bits equal to zero
         {
             //check for opcodes 0x00EE and 0x00E0
@@ -150,7 +153,7 @@ class chip8{
             break;
             
             case 0x3000: //3XNN: if Vx == NN skip next instruction.
-                if (V[(opcode & 0x0F00)] == (opcode & 0x00FF)){
+                if (V[(opcode & 0x0F00) >> 8] == (opcode & 0x00FF)){
                     pc += 4;
                 }
                 else {
@@ -186,8 +189,10 @@ class chip8{
             case 0x7000:  //7XNN: Adds NN to VX (Carry flag is not changed.)
                 {
                     int x = (opcode & 0x0F00) >> 8;
+                    std::cout << "int x = (opcode & 0x0F00) >> 8;" << std::endl;
                     
                     V[x] = V[x] + (opcode & 0x00FF);
+                    std::cout << "V[x] = V[x] + (opcode & 0x00FF);" << std::endl;
                     
                   
                     
@@ -251,26 +256,38 @@ class chip8{
             {
             unsigned short x = V[(opcode & 0x0F00) >> 8];
             unsigned short y = V[(opcode & 0x00F0) >> 4];
+            
+
             unsigned short height = opcode & 0x000F;
+
+            std::cout << "Height = " << std::hex << height << std::endl;
             unsigned short pixel;
             
             V[0xF] = 0;
             for (int yline = 0; yline < height; yline++)
             {
                 pixel = memory[I + yline];
+                 
                 for(int xline = 0; xline < 8; xline++)
                 {
                 if((pixel & (0x80 >> xline)) != 0)
                 {
+                  
                     if(gfx[(x + xline + ((y + yline) * 64))] == 1)
-                    V[0xF] = 1;                                 
-                    gfx[x + xline + ((y + yline) * 64)] ^= 1;
+                    V[0xF] = 1;     
+
+                    unsigned short result = (x + xline + ((y + yline) * 64));
+                    if (result < sizeof(gfx)){
+                        gfx[x + xline + ((y + yline) * 64)] ^= 1; //PROBLEM LINE
+                    }
+                    
                 }
                 }
             }
             //drawFlag = true;
             pc += 2;
             }
+            std::cout << "Finish 0xD000" << std::endl;
             break;
            
             

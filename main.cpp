@@ -107,11 +107,5 @@ int main(int argc, char* argv[])
 
     }
 
-/*
-    for (;;){
-        mychip8.emulateCycle();
-        mychip8.gfxdump();
-    }
-*/
    
 }
