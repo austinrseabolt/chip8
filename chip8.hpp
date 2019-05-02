@@ -267,19 +267,31 @@ class chip8{
             for (int yline = 0; yline < height; yline++)
             {
                 pixel = memory[I + yline];
-                 
+                std::cout << "memory isn't the problem" << std::endl;
                 for(int xline = 0; xline < 8; xline++)
                 {
                 if((pixel & (0x80 >> xline)) != 0)
                 {
-                  
-                    if(gfx[(x + xline + ((y + yline) * 64))] == 1)
-                    V[0xF] = 1;     
-
                     unsigned short result = (x + xline + ((y + yline) * 64));
-                    if (result < sizeof(gfx)){
-                        gfx[x + xline + ((y + yline) * 64)] ^= 1; //PROBLEM LINE
+                    std::cout << "Breakpoint 1" << std::endl;
+                    if (result < sizeof(gfx))
+                    {
+                        if(gfx[(x + xline + ((y + yline) * 64))] == 1) //PROBLEM LINE
+                        std::cout << "Breakpoint 2" << std::endl;
+                        V[0xF] = 1;     
                     }
+                    
+                    
+                    if (result < sizeof(gfx)){
+                        std::cout << "SHIT WENT THRU" << std::endl;
+                        gfx[x + xline + ((y + yline) * 64)] ^= 1; 
+                    }
+                    else
+                    {
+                        std::cout << "BREAK" << std::endl;
+                        break;
+                    }
+                    
                     
                 }
                 }
